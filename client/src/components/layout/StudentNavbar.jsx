@@ -16,7 +16,7 @@ const StudentNavbar = () => {
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
             <Link to="/student" className="text-2xl font-bold text-indigo-600">
-              TutorHub
+              StudentHub
             </Link>
           </div>
           <div className="flex items-center">

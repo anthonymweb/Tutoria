@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://via.placeholder.com/400x150.png?text=Tutoria+Logo" alt="Tutoria Logo" width="400"/>
+  <img src="./assets/Landing page.PNG" alt="Tutoria Logo" width="400"/>
   <h1>Tutoria</h1>
   <p><strong>Your Personalized Gateway to Knowledge 🚀</strong></p>
   <p>
@@ -45,11 +45,19 @@ A feature-rich platform designed for seamless interaction between students, tuto
 
 ## 📸 Application Screenshots
 
-*(Replace these with actual screenshots of your application)*
+Here is a gallery of the Tutoria platform in action.
 
-| Login Page | Student Dashboard | Tutor Profile |
+| Landing Page | Login Page |
+| :---: | :---: |
+| <img src="./assets/Landing page.PNG" alt="Landing Page"> | <img src="./assets/login page.png" alt="Login Page"> |
+
+| Student Landing | Tutor Landing |
+| :---: | :---: |
+| <img src="./assets/student landing page.png" alt="Student Landing Page"> | <img src="./assets/tutor landing page.png" alt="Tutor Landing Page"> |
+
+| Admin Dashboard | Student Dashboard | Tutor Dashboard |
 | :---: | :---: | :---: |
-| <img src="https://via.placeholder.com/300x200.png?text=Login+Screen" alt="Login Screen"> | <img src="https://via.placeholder.com/300x200.png?text=Student+Dashboard" alt="Student Dashboard"> | <img src="https://via.placeholder.com/300x200.png?text=Tutor+Profile" alt="Tutor Profile"> |
+| <img src="./assets/admin dashboard.png" alt="Admin Dashboard"> | <img src="assets/student dashboard.png" alt="Student Dashboard"> | <img src="./assets/tutor dashboard.png" alt="Tutor Dashboard"> |
 
 
 ## 🛠️ Tech Stack
