@@ -1,0 +1,6 @@
+{
+  "name": "submitTutorApplication",
+  "source": "exports = async function(application) { const db = context.services.get(\"mongodb-atlas\").db(\"tutoria\"); application.createdAt = new Date(); const res = await db.collection(\"tutor_applications\").insertOne(application); return { insertedId: res.insertedId }; };",
+  "private": false,
+  "run_as_system": true
+}

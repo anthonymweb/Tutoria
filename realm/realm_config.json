@@ -1,0 +1,12 @@
+{
+    "app_id": "tutoriarealm-dwsxsjt",
+    "config_version": 20210101,
+    "name": "TutoriaRealm",
+    "location": "IN-MB",
+    "provider_region": "aws-ap-south-1",
+    "deployment_model": "LOCAL",
+    "environment": "development",
+    "allowed_request_origins": [
+        "http://localhost:3000"
+    ]
+}

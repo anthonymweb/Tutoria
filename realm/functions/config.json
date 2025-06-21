@@ -1,0 +1,38 @@
+[
+    {
+        "name": "getApprovedTutors",
+        "private": false,
+        "run_as_system": true,
+        "disable_arg_logs": true
+    },
+    {
+        "name": "rejectTutorApplication",
+        "private": false,
+        "run_as_system": true,
+        "disable_arg_logs": true
+    },
+    {
+        "name": "sendApprovalEmail",
+        "private": false,
+        "run_as_system": true,
+        "disable_arg_logs": true
+    },
+    {
+        "name": "sendRejectionEmail",
+        "private": false,
+        "run_as_system": true,
+        "disable_arg_logs": true
+    },
+    {
+        "name": "submitTutorApplication",
+        "private": false,
+        "run_as_system": true,
+        "disable_arg_logs": true
+    },
+    {
+        "name": "approveTutorApplication",
+        "private": false,
+        "run_as_system": true,
+        "disable_arg_logs": true
+    }
+]

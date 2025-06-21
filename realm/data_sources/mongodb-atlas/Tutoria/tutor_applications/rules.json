@@ -1,0 +1,22 @@
+{
+    "collection": "tutor_applications",
+    "database": "Tutoria",
+    "roles": [
+        {
+            "name": "public",
+            "apply_when": {
+                "%%user.data.api_key": "public"
+            },
+            "insert": true,
+            "delete": false
+        },
+        {
+            "name": "admin",
+            "apply_when": {
+                "%%user.data.api_key": "admin"
+            },
+            "insert": true,
+            "delete": true
+        }
+    ]
+}

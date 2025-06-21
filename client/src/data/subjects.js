@@ -1,0 +1,96 @@
+export const subjects = [
+  // Mathematics
+  'Algebra',
+  'Calculus',
+  'Geometry',
+  'Statistics',
+  'Trigonometry',
+  'Linear Algebra',
+  'Differential Equations',
+  'Number Theory',
+  'Discrete Mathematics',
+
+  // Sciences
+  'Physics',
+  'Chemistry',
+  'Biology',
+  'Earth Science',
+  'Environmental Science',
+  'Astronomy',
+  'Anatomy',
+  'Physiology',
+  'Organic Chemistry',
+  'Biochemistry',
+
+  // Computer Science
+  'Programming',
+  'Web Development',
+  'Data Structures',
+  'Algorithms',
+  'Database Management',
+  'Computer Networks',
+  'Operating Systems',
+  'Software Engineering',
+  'Artificial Intelligence',
+  'Machine Learning',
+
+  // Languages
+  'English',
+  'Spanish',
+  'French',
+  'German',
+  'Chinese',
+  'Japanese',
+  'Korean',
+  'Russian',
+  'Arabic',
+  'Latin',
+
+  // Humanities
+  'History',
+  'Geography',
+  'Political Science',
+  'Economics',
+  'Psychology',
+  'Sociology',
+  'Philosophy',
+  'Anthropology',
+  'World Religions',
+  'Cultural Studies',
+
+  // Arts
+  'Music Theory',
+  'Art History',
+  'Drawing',
+  'Painting',
+  'Photography',
+  'Digital Art',
+  'Graphic Design',
+  'Film Studies',
+  'Theater',
+  'Dance',
+
+  // Business
+  'Accounting',
+  'Finance',
+  'Marketing',
+  'Management',
+  'Business Law',
+  'Entrepreneurship',
+  'Economics',
+  'Business Ethics',
+  'Project Management',
+  'International Business',
+
+  // Test Preparation
+  'SAT',
+  'ACT',
+  'GRE',
+  'GMAT',
+  'LSAT',
+  'MCAT',
+  'TOEFL',
+  'IELTS',
+  'AP Exams',
+  'IB Exams'
+]; 
