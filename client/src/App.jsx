@@ -66,35 +66,25 @@ function App() {
           <Route path="/tutor-landing" element={<TutorLandingPage />} />
           
           {/* Protected Student Routes */}
-          <Route path="/student" element={
+          <Route path="/student/*" element={
             <ProtectedRoute allowedRoles={['student']}>
               <StudentLayout />
             </ProtectedRoute>
-          }>
-            <Route index element={<StudentDashboard />} />
-            {/* All other student routes as children */}
-            <Route path="*" element={<StudentRoutes />} />
-          </Route>
+          } />
           
           {/* Protected Tutor Routes */}
-          <Route path="/tutor" element={
+          <Route path="/tutor/*" element={
             <ProtectedRoute allowedRoles={['tutor']}>
               <TutorLayout />
             </ProtectedRoute>
-          }>
-            <Route index element={<TutorDashboard />} />
-            <Route path="*" element={<TutorRoutes />} />
-          </Route>
+          } />
           
           {/* Protected Admin Routes */}
-          <Route path="/admin" element={
+          <Route path="/admin/*" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminLayout />
             </ProtectedRoute>
-          }>
-            <Route index element={<AdminDashboard />} />
-            <Route path="*" element={<AdminRoutes />} />
-          </Route>
+          } />
           
           {/* Error Routes */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />

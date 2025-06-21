@@ -45,28 +45,24 @@ export function AuthProvider({ children }) {
       if (user) {
         const idTokenResult = await getIdTokenResult(user, true);
         console.log('ID Token Claims:', idTokenResult.claims);
-        let role = idTokenResult.claims.role;
+        const role = idTokenResult.claims.role;
+
         if (!role) {
-          if (user.email === 'admin1@gmail.com') {
-            role = 'admin';
-          } else if (user.email === 'tutor1@gmail.com') {
-            role = 'tutor';
-          } else {
-            role = 'student';
-          }
+          // If no role, sign out user to prevent access
+          console.warn("User has no role claim. Forcing logout.");
+          setCurrentUser(null);
+          localStorage.removeItem('userData');
+          signOut(auth);
+          setLoading(false);
+          return;
         }
+
         const userData = { ...user, role };
         localStorage.setItem('userData', JSON.stringify(userData));
         setCurrentUser(userData);
       } else {
-        // If Firebase user is null but userData exists, restore from localStorage
-        const storedUser = JSON.parse(localStorage.getItem('userData') || '{}');
-        if (storedUser && storedUser.email) {
-          setCurrentUser(storedUser);
-        } else {
-          setCurrentUser(null);
-          localStorage.removeItem('userData');
-        }
+        setCurrentUser(null);
+        localStorage.removeItem('userData');
       }
       setLoading(false);
     });
@@ -89,25 +85,19 @@ export function AuthProvider({ children }) {
       }
 
       const response = await signInWithEmailAndPassword(auth, email, password);
-      const userData = response.user;
+      const user = response.user;
       
       // Force token refresh to get latest claims
-      await userData.getIdToken(true);
-      const idTokenResult = await getIdTokenResult(userData, true);
+      await user.getIdToken(true);
+      const idTokenResult = await getIdTokenResult(user);
       console.log('Login ID Token Claims:', idTokenResult.claims);
-      let role = idTokenResult.claims.role;
+      const role = idTokenResult.claims.role;
+
       if (!role) {
-        if (userData.email === 'admin1@gmail.com') {
-          role = 'admin';
-        } else if (userData.email === 'tutor1@gmail.com') {
-          role = 'tutor';
-        } else {
-          role = 'student';
-        }
+        throw new Error('Login failed: No role assigned to this user.');
       }
-      const fullUserData = { ...userData, role };
-      
-      // Store role in localStorage for later use
+
+      const fullUserData = { ...user, role };
       localStorage.setItem('userData', JSON.stringify(fullUserData));
       setCurrentUser(fullUserData);
       return fullUserData;
@@ -138,15 +128,27 @@ export function AuthProvider({ children }) {
       const response = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
       const newUser = response.user;
 
+      // Set custom claim via backend
+      // NOTE: This now uses the configured api.js which points to the live backend
+      await fetch(`${process.env.REACT_APP_API_URL}/setRole`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: newUser.uid, role: userData.role })
+      });
+
+      // Force token refresh to get latest claims
+      await newUser.getIdToken(true);
+      
+      // Get the new role from the token
+      const idTokenResult = await getIdTokenResult(newUser);
+      const role = idTokenResult.claims.role;
+
       // Create user profile data
       const userProfile = {
         uid: newUser.uid,
         email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
         fullName: `${userData.firstName} ${userData.lastName}`,
-        phone: userData.phone,
-        role: userData.role,
+        role: role, // Use the role from the token
         createdAt: new Date().toISOString(),
         isEmailVerified: false,
         profileCompleted: false,
@@ -169,9 +171,6 @@ export function AuthProvider({ children }) {
         })
       };
 
-      // Save user profile to localStorage
-      localStorage.setItem('userData', JSON.stringify(userProfile));
-
       // Update Firebase Auth profile
       await firebaseUpdateProfile(newUser, {
         displayName: userProfile.fullName
@@ -180,6 +179,7 @@ export function AuthProvider({ children }) {
       // Set current user with full profile data
       const fullUserData = { ...newUser, ...userProfile };
       setCurrentUser(fullUserData);
+      localStorage.setItem('userData', JSON.stringify(fullUserData));
       return fullUserData;
     } catch (err) {
       setError(err.message || 'An error occurred during signup');

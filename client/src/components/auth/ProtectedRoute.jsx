@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { currentUser, loading } = useAuth();
   const location = useLocation();
 
@@ -19,7 +19,11 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // No role checks, always allow if authenticated
+  if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
+    // Redirect to unauthorized page if role doesn't match
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   return children;
 };
 
