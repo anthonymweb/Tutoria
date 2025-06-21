@@ -65,10 +65,23 @@ function App() {
           <Route path="/student-landing" element={<StudentLandingPage />} />
           <Route path="/tutor-landing" element={<TutorLandingPage />} />
           
-          {/* Routes are now public */}
-          <Route path="/student/*" element={<StudentLayout />} />
-          <Route path="/tutor/*" element={<TutorLayout />} />
-          <Route path="/admin/*" element={<AdminLayout />} />
+          {/* Student Routes */}
+          <Route path="/student" element={<StudentLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="*" element={<StudentRoutes />} />
+          </Route>
+          
+          {/* Tutor Routes */}
+          <Route path="/tutor" element={<TutorLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="*" element={<TutorRoutes />} />
+          </Route>
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="*" element={<AdminRoutes />} />
+          </Route>
           
           {/* Error Routes */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
