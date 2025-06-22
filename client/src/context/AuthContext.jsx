@@ -41,66 +41,54 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log('onAuthStateChanged user:', user);
-      if (user) {
-        const idTokenResult = await getIdTokenResult(user, true);
-        console.log('ID Token Claims:', idTokenResult.claims);
-        const role = idTokenResult.claims.role;
+      try {
+        if (user) {
+          // Force token refresh to get latest claims
+          await user.getIdToken(true);
+          const idTokenResult = await getIdTokenResult(user);
+          const role = idTokenResult.claims.role || 'student'; // Default to student if no role
 
-        if (!role) {
-          // If no role, sign out user to prevent access
-          console.warn("User has no role claim. Forcing logout.");
+          const userData = { ...user, role };
+          localStorage.setItem('userData', JSON.stringify(userData));
+          setCurrentUser(userData);
+        } else {
           setCurrentUser(null);
           localStorage.removeItem('userData');
-          signOut(auth);
-          setLoading(false);
-          return;
         }
-
-        const userData = { ...user, role };
-        localStorage.setItem('userData', JSON.stringify(userData));
-        setCurrentUser(userData);
-      } else {
+      } catch (error) {
+        console.error("Error during authentication state change:", error);
+        // If any error occurs, ensure user is logged out for safety
         setCurrentUser(null);
         localStorage.removeItem('userData');
+      } finally {
+        // This ensures loading is always turned off, even if errors occur.
+        setLoading(false);
       }
-      setLoading(false);
     });
     return unsubscribe;
   }, []);
 
   async function login(email, password) {
+    // This function's only job is to ask Firebase to sign in.
+    // It should not manually set state. The `onAuthStateChanged` listener above
+    // is the single source of truth and will handle setting the user correctly.
     try {
       setError(null);
-      
-      // In development, allow mock login
+
+      // Dev mode still needs to work, but it should also just set state once.
       if (isDev && email.includes('@dev.com')) {
         const role = email.split('@')[0];
         const devUser = DEV_USERS[role];
-        if (!devUser) return;
+        if (!devUser) throw new Error("Invalid dev user");
 
         localStorage.setItem('userData', JSON.stringify(devUser));
         setCurrentUser(devUser);
-        return devUser;
+        return devUser; // We return here for the form's loading state
       }
 
-      const response = await signInWithEmailAndPassword(auth, email, password);
-      const user = response.user;
-      
-      // Force token refresh to get latest claims
-      await user.getIdToken(true);
-      const idTokenResult = await getIdTokenResult(user);
-      console.log('Login ID Token Claims:', idTokenResult.claims);
-      const role = idTokenResult.claims.role;
+      // For real users, we just await the sign-in. The listener does the rest.
+      await signInWithEmailAndPassword(auth, email, password);
 
-      if (!role) {
-        throw new Error('Login failed: No role assigned to this user.');
-      }
-
-      const fullUserData = { ...user, role };
-      localStorage.setItem('userData', JSON.stringify(fullUserData));
-      setCurrentUser(fullUserData);
-      return fullUserData;
     } catch (err) {
       console.error('AuthContext: Login error:', err);
       const errorMessage = err.message || 'An error occurred during login';

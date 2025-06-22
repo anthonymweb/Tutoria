@@ -65,23 +65,26 @@ function App() {
           <Route path="/student-landing" element={<StudentLandingPage />} />
           <Route path="/tutor-landing" element={<TutorLandingPage />} />
           
-          {/* Student Routes */}
-          <Route path="/student" element={<StudentLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="*" element={<StudentRoutes />} />
-          </Route>
+          {/* Protected Student Routes */}
+          <Route path="/student/*" element={
+            <ProtectedRoute allowedRoles={['student']}>
+              <StudentLayout />
+            </ProtectedRoute>
+          } />
           
-          {/* Tutor Routes */}
-          <Route path="/tutor" element={<TutorLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="*" element={<TutorRoutes />} />
-          </Route>
+          {/* Protected Tutor Routes */}
+          <Route path="/tutor/*" element={
+            <ProtectedRoute allowedRoles={['tutor']}>
+              <TutorLayout />
+            </ProtectedRoute>
+          } />
           
-          {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="*" element={<AdminRoutes />} />
-          </Route>
+          {/* Protected Admin Routes */}
+          <Route path="/admin/*" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          } />
           
           {/* Error Routes */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
@@ -91,5 +94,4 @@ function App() {
     </AuthProvider>
   );
 }
-
 export default App;

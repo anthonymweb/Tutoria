@@ -1,15 +1,19 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaComments, FaSignOutAlt } from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
 
 const TutorNavbar = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    // Clear auth tokens if needed
-    localStorage.removeItem('token');
-    // Redirect to tutor landing page
-    navigate('/tutor-landing');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/tutor-landing');
+    } catch (error) {
+      console.error('Failed to log out', error);
+    }
   };
 
   return (
