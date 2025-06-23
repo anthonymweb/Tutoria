@@ -52,7 +52,7 @@ export function AuthRedirector() {
   const location = useLocation();
 
   useEffect(() => {
-    if (loading || !currentUser) return;
+    if (loading || !currentUser || !currentUser.role) return;
 
     const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
 
