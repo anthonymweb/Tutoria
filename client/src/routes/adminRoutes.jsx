@@ -1,6 +1,5 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import AdminLayout from '../components/layout/AdminLayout';
 
 // Dashboard
 import AdminDashboard from '../components/pages/admin/Dashboard/AdminDashboard';
@@ -45,71 +44,69 @@ import AdminSettingsPage from '../components/pages/admin/Settings/AdminSettingsP
 
 const AdminRoutes = () => {
   return (
-    <AdminLayout>
-      <Routes>
-        {/* Dashboard */}
-        <Route index element={<AdminDashboard />} />
-        <Route path="dashboard" element={<Navigate to="/admin" replace />} />
-        <Route path="pending-applications" element={<PendingTutorApplications />} />
+    <Routes>
+      {/* Dashboard */}
+      <Route index element={<AdminDashboard />} />
+      <Route path="dashboard" element={<Navigate to="/admin" replace />} />
+      <Route path="pending-applications" element={<PendingTutorApplications />} />
 
-        {/* User Management */}
-        <Route path="users">
-          <Route index element={<UsersPage />} />
-          <Route path="all" element={<AllUsersPage />} />
-          <Route path=":userId" element={<UserDetailsPage />} />
-        </Route>
+      {/* User Management */}
+      <Route path="users">
+        <Route index element={<UsersPage />} />
+        <Route path="all" element={<AllUsersPage />} />
+        <Route path=":userId" element={<UserDetailsPage />} />
+      </Route>
 
-        {/* Tutor Management */}
-        <Route path="tutors">
-          <Route index element={<AllTutorsPage />} />
-          <Route path="all" element={<AllTutorsPage />} />
-          <Route path=":tutorId" element={<TutorDetailsPage />} />
-          <Route path="approval-queue" element={<TutorApprovalQueue />} />
-        </Route>
+      {/* Tutor Management */}
+      <Route path="tutors">
+        <Route index element={<AllTutorsPage />} />
+        <Route path="all" element={<AllTutorsPage />} />
+        <Route path=":tutorId" element={<TutorDetailsPage />} />
+        <Route path="approval-queue" element={<TutorApprovalQueue />} />
+      </Route>
 
-        {/* Student Management */}
-        <Route path="students">
-          <Route index element={<AllStudentsPage />} />
-          <Route path="all" element={<AllStudentsPage />} />
-          <Route path=":studentId" element={<StudentDetailsPage />} />
-        </Route>
+      {/* Student Management */}
+      <Route path="students">
+        <Route index element={<AllStudentsPage />} />
+        <Route path="all" element={<AllStudentsPage />} />
+        <Route path=":studentId" element={<StudentDetailsPage />} />
+      </Route>
 
-        {/* Session Management */}
-        <Route path="sessions">
-          <Route index element={<AllSessionsPage />} />
-          <Route path="all" element={<AllSessionsPage />} />
-          <Route path=":sessionId" element={<SessionDetailsPage />} />
-          <Route path="overview" element={<SessionOverviewPage />} />
-        </Route>
+      {/* Session Management */}
+      <Route path="sessions">
+        <Route index element={<AllSessionsPage />} />
+        <Route path="all" element={<AllSessionsPage />} />
+        <Route path=":sessionId" element={<SessionDetailsPage />} />
+        <Route path="overview" element={<SessionOverviewPage />} />
+      </Route>
 
-        {/* Payment Management */}
-        <Route path="payments">
-          <Route path="payouts" element={<PayoutRequestsPage />} />
-          <Route path="transactions" element={<TransactionLogsPage />} />
-        </Route>
+      {/* Payment Management */}
+      <Route path="payments">
+        <Route path="payouts" element={<PayoutRequestsPage />} />
+        <Route path="transactions" element={<TransactionLogsPage />} />
+      </Route>
 
-        {/* Analytics */}
-        <Route path="analytics">
-          <Route path="platform" element={<PlatformAnalyticsPage />} />
-          <Route path="revenue" element={<RevenueAnalyticsPage />} />
-          <Route path="users" element={<UserAnalyticsPage />} />
-          <Route path="sessions" element={<SessionAnalyticsPage />} />
-        </Route>
+      {/* Analytics */}
+      <Route path="analytics">
+        <Route path="platform" element={<PlatformAnalyticsPage />} />
+        <Route path="revenue" element={<RevenueAnalyticsPage />} />
+        <Route path="users" element={<UserAnalyticsPage />} />
+        <Route path="sessions" element={<SessionAnalyticsPage />} />
+      </Route>
 
-        {/* Dispute Management */}
-        <Route path="disputes">
-          <Route index element={<AllDisputesPage />} />
-          <Route path=":disputeId" element={<DisputeDetailsPage />} />
-          <Route path="center" element={<DisputeCenter />} />
-        </Route>
+      {/* Dispute Management */}
+      <Route path="disputes">
+        <Route index element={<AllDisputesPage />} />
+        <Route path=":disputeId" element={<DisputeDetailsPage />} />
+        <Route path="center" element={<DisputeCenter />} />
+      </Route>
 
-        {/* Settings */}
-        <Route path="settings" element={<AdminSettingsPage />} />
+      {/* Settings */}
+      <Route path="settings" element={<AdminSettingsPage />} />
 
-        {/* Catch all - redirect to dashboard */}
-        <Route path="*" element={<Navigate to="/admin" replace />} />
-      </Routes>
-    </AdminLayout>
+      {/* Catch all - redirect to dashboard */}
+      <Route path="*" element={<Navigate to="/admin" replace />} />
+    </Routes>
   );
 };
 

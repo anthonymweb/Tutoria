@@ -1,6 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { auth } from '../firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile as firebaseUpdateProfile, sendPasswordResetEmail as firebaseSendPasswordResetEmail, sendEmailVerification as firebaseSendEmailVerification, GoogleAuthProvider, signInWithPopup, getIdTokenResult } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile as firebaseUpdateProfile,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
+  sendEmailVerification as firebaseSendEmailVerification,
+  GoogleAuthProvider,
+  signInWithPopup,
+  getIdTokenResult
+} from 'firebase/auth';
 
 const AuthContext = createContext();
 
@@ -33,6 +45,37 @@ export function useAuth() {
   return useContext(AuthContext);
 }
 
+// This component handles redirection and must be placed inside a Router.
+export function AuthRedirector() {
+  const { currentUser, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (loading || !currentUser) return;
+
+    const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
+
+    if (isAuthPage) {
+      switch (currentUser.role) {
+        case 'student':
+          navigate('/student');
+          break;
+        case 'tutor':
+          navigate('/tutor');
+          break;
+        case 'admin':
+          navigate('/admin');
+          break;
+        default:
+          navigate('/');
+      }
+    }
+  }, [currentUser, loading, navigate, location.pathname]);
+
+  return null; // This component does not render anything.
+}
+
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,26 +85,30 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
-        if (user) {
-          // Force token refresh to get latest claims
+      if (user) {
           await user.getIdToken(true);
           const idTokenResult = await getIdTokenResult(user);
-          const role = idTokenResult.claims.role || 'student'; // Default to student if no role
+        let role = idTokenResult.claims.role;
 
-          const userData = { ...user, role };
-          localStorage.setItem('userData', JSON.stringify(userData));
+        if (!role) {
+            const storedData = JSON.parse(localStorage.getItem('userData'));
+            if (storedData && storedData.uid === user.uid && storedData.role) {
+              role = storedData.role;
+            }
+          }
+
+          const userData = { ...user, role: role || 'student' };
           setCurrentUser(userData);
+        localStorage.setItem('userData', JSON.stringify(userData));
         } else {
           setCurrentUser(null);
           localStorage.removeItem('userData');
         }
       } catch (error) {
         console.error("Error during authentication state change:", error);
-        // If any error occurs, ensure user is logged out for safety
         setCurrentUser(null);
         localStorage.removeItem('userData');
       } finally {
-        // This ensures loading is always turned off, even if errors occur.
         setLoading(false);
       }
     });
@@ -69,28 +116,10 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function login(email, password) {
-    // This function's only job is to ask Firebase to sign in.
-    // It should not manually set state. The `onAuthStateChanged` listener above
-    // is the single source of truth and will handle setting the user correctly.
     try {
       setError(null);
-
-      // Dev mode still needs to work, but it should also just set state once.
-      if (isDev && email.includes('@dev.com')) {
-        const role = email.split('@')[0];
-        const devUser = DEV_USERS[role];
-        if (!devUser) throw new Error("Invalid dev user");
-
-        localStorage.setItem('userData', JSON.stringify(devUser));
-        setCurrentUser(devUser);
-        return devUser; // We return here for the form's loading state
-      }
-
-      // For real users, we just await the sign-in. The listener does the rest.
       await signInWithEmailAndPassword(auth, email, password);
-
     } catch (err) {
-      console.error('AuthContext: Login error:', err);
       const errorMessage = err.message || 'An error occurred during login';
       setError(errorMessage);
       throw new Error(errorMessage);
@@ -100,74 +129,31 @@ export function AuthProvider({ children }) {
   async function signup(userData) {
     try {
       setError(null);
-      
-      // In development, allow mock signup
-      if (isDev && userData.email.includes('@dev.com')) {
-        const role = userData.email.split('@')[0];
-        const devUser = DEV_USERS[role];
-        if (!devUser) return;
-
-        localStorage.setItem('userData', JSON.stringify(devUser));
-        setCurrentUser(devUser);
-        return devUser;
-      }
-
-      // Create user in Firebase Auth
       const response = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
       const newUser = response.user;
 
-      // Set custom claim via backend
-      // NOTE: This now uses the configured api.js which points to the live backend
-      await fetch(`${process.env.REACT_APP_API_URL}/setRole`, {
+      fetch(`${process.env.REACT_APP_API_URL}/setRole`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: newUser.uid, role: userData.role })
       });
 
-      // Force token refresh to get latest claims
-      await newUser.getIdToken(true);
-      
-      // Get the new role from the token
-      const idTokenResult = await getIdTokenResult(newUser);
-      const role = idTokenResult.claims.role;
-
-      // Create user profile data
       const userProfile = {
         uid: newUser.uid,
         email: userData.email,
         fullName: `${userData.firstName} ${userData.lastName}`,
-        role: role, // Use the role from the token
+        role: userData.role,
         createdAt: new Date().toISOString(),
-        isEmailVerified: false,
-        profileCompleted: false,
-        ...(userData.role === 'student' && {
-          studentProfile: {
-            grade: userData.grade || 'Not specified',
-            subjects: userData.subjects || [],
-            learningGoals: userData.learningGoals || []
-          }
-        }),
-        ...(userData.role === 'tutor' && {
-          tutorProfile: {
-            expertise: userData.expertise || 'General',
-            experience: userData.experience || 'Not specified',
-            education: userData.education || 'Not specified',
-            subjects: userData.subjects || [],
-            hourlyRate: 0,
-            isVerified: false
-          }
-        })
       };
 
-      // Update Firebase Auth profile
       await firebaseUpdateProfile(newUser, {
         displayName: userProfile.fullName
       });
 
-      // Set current user with full profile data
       const fullUserData = { ...newUser, ...userProfile };
       setCurrentUser(fullUserData);
       localStorage.setItem('userData', JSON.stringify(fullUserData));
+      
       return fullUserData;
     } catch (err) {
       setError(err.message || 'An error occurred during signup');
@@ -176,7 +162,6 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
-    // Clear auth data
     signOut(auth);
     setCurrentUser(null);
     localStorage.removeItem('userData');
@@ -185,23 +170,16 @@ export function AuthProvider({ children }) {
   async function updateProfile(profileData) {
     try {
       setError(null);
-      
-      // In development, allow mock profile update
       if (isDev) {
         const updatedUser = { ...currentUser, ...profileData };
         localStorage.setItem('userData', JSON.stringify(updatedUser));
         setCurrentUser(updatedUser);
         return updatedUser;
       }
-
       if (!auth.currentUser) throw new Error('No authenticated user');
-
-      // Update Firebase Auth profile
       await firebaseUpdateProfile(auth.currentUser, {
         displayName: profileData.fullName || profileData.displayName
       });
-
-      // Update localStorage profile
       const updatedUser = { ...currentUser, ...profileData };
       localStorage.setItem('userData', JSON.stringify(updatedUser));
       setCurrentUser(updatedUser);
@@ -215,10 +193,7 @@ export function AuthProvider({ children }) {
   async function resetPassword(email) {
     try {
       setError(null);
-      
-      // In development, just return success
       if (isDev) return { message: 'Password reset email sent' };
-
       await firebaseSendPasswordResetEmail(auth, email);
     } catch (err) {
       setError(err.message || 'An error occurred while resetting password');
@@ -229,14 +204,10 @@ export function AuthProvider({ children }) {
   async function verifyEmail() {
     try {
       setError(null);
-      
-      // In development, just return success
       if (isDev) return { message: 'Email verified successfully' };
-
       if (!auth.currentUser) throw new Error('No authenticated user');
       await firebaseSendEmailVerification(auth.currentUser);
       return;
-      
     } catch (err) {
       setError(err.message || 'An error occurred while verifying email');
       throw err;
@@ -256,8 +227,6 @@ export function AuthProvider({ children }) {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      
-      // Create new user profile
       const userProfile = {
         uid: result.user.uid,
         email: result.user.email,
@@ -267,11 +236,7 @@ export function AuthProvider({ children }) {
         isEmailVerified: result.user.emailVerified,
         profileCompleted: false
       };
-
-      // Save user profile to localStorage
       localStorage.setItem('userData', JSON.stringify(userProfile));
-
-      // Set current user
       const fullUserData = { ...result.user, ...userProfile };
       setCurrentUser(fullUserData);
       return fullUserData;
@@ -298,7 +263,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }

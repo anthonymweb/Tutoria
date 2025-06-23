@@ -126,10 +126,8 @@ const SignupPage = () => {
         };
       }
 
-      console.log('Sending registration data:', registrationData);
       const user = await signup(registrationData);
-      console.log('Registration response:', user);
-
+      
       toast.success('Registration successful!');
       
       // Redirect based on selected role

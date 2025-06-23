@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, AuthRedirector, useAuth } from './context/AuthContext';
 import LandingPage from './components/pages/LandingPage';
 import LoginPage from './components/pages/LoginPage';
 import SignupPage from './components/pages/SignupPage';
@@ -44,6 +44,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <AuthRedirector />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
@@ -65,26 +66,39 @@ function App() {
           <Route path="/student-landing" element={<StudentLandingPage />} />
           <Route path="/tutor-landing" element={<TutorLandingPage />} />
           
-          {/* Protected Student Routes */}
-          <Route path="/student/*" element={
-            <ProtectedRoute allowedRoles={['student']}>
-              <StudentLayout />
-            </ProtectedRoute>
-          } />
+          {/* Protected Routes */}
+          <Route
+            path="/student/*"
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="*" element={<StudentRoutes />} />
+          </Route>
+
+          <Route
+            path="/tutor/*"
+            element={
+              <ProtectedRoute allowedRoles={['tutor']}>
+                <TutorLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="*" element={<TutorRoutes />} />
+          </Route>
           
-          {/* Protected Tutor Routes */}
-          <Route path="/tutor/*" element={
-            <ProtectedRoute allowedRoles={['tutor']}>
-              <TutorLayout />
-            </ProtectedRoute>
-          } />
-          
-          {/* Protected Admin Routes */}
-          <Route path="/admin/*" element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminLayout />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="/admin/*"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="*" element={<AdminRoutes />} />
+          </Route>
           
           {/* Error Routes */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />

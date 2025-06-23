@@ -26,28 +26,8 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const userData = await login(formData.email, formData.password);
-      console.log('Login successful:', userData);
-      
-      if (userData && userData.role) {
-        toast.success('Welcome back!');
-        switch (userData.role) {
-          case 'student':
-            navigate('/student');
-            break;
-          case 'tutor':
-            navigate('/tutor');
-            break;
-          case 'admin':
-            navigate('/admin');
-            break;
-          default:
-            navigate('/dashboard');
-        }
-      } else {
-        console.error('No user role in response:', userData);
-        toast.error('Invalid user data received');
-      }
+      await login(formData.email, formData.password);
+      toast.success('Welcome back!');
     } catch (error) {
       console.error('Login error:', error);
       toast.error(error.message || 'Login failed. Please try again.');
